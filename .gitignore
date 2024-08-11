@@ -1,2 +1,5 @@
 /backend/node_modules
 .env
+/frontend/components.json
+
+/frontend/eslint.config.json
