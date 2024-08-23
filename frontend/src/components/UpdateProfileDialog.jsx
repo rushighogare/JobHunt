@@ -5,9 +5,63 @@ import { Input } from './ui/input'
 import { Button } from './ui/button'
 import { Loader2 } from 'lucide-react'
 import { useSelector } from 'react-redux'
+import store from '@/redux/store'
+import axios from 'axios'
+import { USER_API_END_POINT } from '@/utils/constant'
+import { setUser } from '@/redux/authSlice'
+import { toast } from 'sonner'
 
 function UpdateProfileDialog({open , setOpen}) {
     const [loading, setLoading]=useState(false);
+    const {user}=useSelector(store=>store.auth);
+
+    const [input, setInput]=useState({
+        fullname:user?.fullname,
+        email:user?.email,
+        phoneNumber:user?.phoneNumber,
+        bio:user?.profile?.bio,
+        skills:user?.profile?.skills.map(skill=>skill),
+        file:user?.profile?.resume
+    })
+
+    const changeEventHandler=(e)=>{
+        setInput({...input, [e.target.name]:e.target.value});
+    }
+
+    const fileChangeHandler=(e)=>{
+        const file=e.target.files?.[0];
+        setInput({...input, file})
+    }
+
+    const submitHandler=async (e)=>{
+        e.preventDefault();
+        const formData=new FormData();
+        formData.append("fullname", input.fullname);
+        formData.append("email", input.email);
+        formData.append("phoneNumber", input.phoneNumber);
+        formData.append("bio", input.bio);
+        formData.append("skills", input.skills);
+        if(input.file){
+            formData.append("file", input.file);
+        }
+
+        try{
+            const res=await axios.post(`${USER_API_END_POINT}/profile/update`, formData, {
+                headers:{
+                    'Content-Type':'multipart/form-data'
+                },
+                withCredentials:true
+            });
+            if(res.success){
+                dispatchEvent(setUser(res.user));
+                toast.success(res.message);
+            }
+        }catch(error){
+            toast.error(error.response.message);
+        }
+        setOpen(false);
+        console.log(input);
+    }
 
   return (
     <div>
@@ -16,13 +70,15 @@ function UpdateProfileDialog({open , setOpen}) {
                 <DialogHeader>
                     <DialogTitle>Update Profile</DialogTitle>
                 </DialogHeader>
-                <form>
+                <form onSubmit={submitHandler}>
                     <div className='grid gap-4 py-4'>
                         <div className='grid grid-cols-4 items-center gap-4'>
                             <Label htmlFor="name" className="text-right">Name</Label>
                             <Input
                             id="name"
                             name="name"
+                            value={input.fullname}
+                            onChange={changeEventHandler}
                             className="col-span-3"/>
                         </div>
                         <div className='grid grid-cols-4 items-center gap-4'>
@@ -30,6 +86,8 @@ function UpdateProfileDialog({open , setOpen}) {
                             <Input
                             id="email"
                             name="email"
+                            value={input.email}
+                            onChange={changeEventHandler}
                             className="col-span-3"/>
                         </div>
                         <div className='grid grid-cols-4 items-center gap-4'>
@@ -37,6 +95,8 @@ function UpdateProfileDialog({open , setOpen}) {
                             <Input
                             id="number"
                             name="number"
+                            value={input.phoneNumber}
+                            onChange={changeEventHandler}
                             className="col-span-3"/>
                         </div>
                         <div className='grid grid-cols-4 items-center gap-4'>
@@ -44,6 +104,8 @@ function UpdateProfileDialog({open , setOpen}) {
                             <Input
                             id="bio"
                             name="bio"
+                            value={input.bio}
+                            onChange={changeEventHandler}
                             className="col-span-3"/>
                         </div>
                         <div className='grid grid-cols-4 items-center gap-4'>
@@ -51,6 +113,8 @@ function UpdateProfileDialog({open , setOpen}) {
                             <Input
                             id="skills"
                             name="skills"
+                            value={input.skills}
+                            onChange={changeEventHandler}
                             className="col-span-3"/>
                         </div>
                         <div className='grid grid-cols-4 items-center gap-4'>
@@ -60,6 +124,7 @@ function UpdateProfileDialog({open , setOpen}) {
                             name="file"
                             type="file"
                             accept="application/pdf"
+                            onChange={fileChangeHandler}
                             className="col-span-3"/>
                         </div>
                     </div>
