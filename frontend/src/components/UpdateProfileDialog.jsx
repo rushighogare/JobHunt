@@ -47,6 +47,7 @@ function UpdateProfileDialog({open , setOpen}) {
         }
 
         try{
+            setLoading(true);
             const res=await axios.post(`${USER_API_END_POINT}/profile/update`, formData, {
                 headers:{
                     'Content-Type':'multipart/form-data'
@@ -61,6 +62,8 @@ function UpdateProfileDialog({open , setOpen}) {
             }
         }catch(error){
             toast.error(error.response.message);
+        }finally{
+            setLoading(false);
         }
         setOpen(false);
     }
@@ -78,7 +81,7 @@ function UpdateProfileDialog({open , setOpen}) {
                             <Label htmlFor="name" className="text-right">Name</Label>
                             <Input
                             id="name"
-                            name="name"
+                            name="fullname"
                             value={input.fullname}
                             onChange={changeEventHandler}
                             className="col-span-3"/>
