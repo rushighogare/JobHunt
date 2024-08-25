@@ -4,7 +4,7 @@ import { Label } from './ui/label'
 import { Input } from './ui/input'
 import { Button } from './ui/button'
 import { Loader2 } from 'lucide-react'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import store from '@/redux/store'
 import axios from 'axios'
 import { USER_API_END_POINT } from '@/utils/constant'
@@ -13,7 +13,8 @@ import { toast } from 'sonner'
 
 function UpdateProfileDialog({open , setOpen}) {
     const [loading, setLoading]=useState(false);
-    const {user}=useSelector(store=>store.auth);
+    const {user}    =useSelector(store=>store.auth);
+    const dispatchEvent = useDispatch();
 
     const [input, setInput]=useState({
         fullname:user?.fullname,
@@ -52,15 +53,16 @@ function UpdateProfileDialog({open , setOpen}) {
                 },
                 withCredentials:true
             });
-            if(res.success){
-                dispatchEvent(setUser(res.user));
-                toast.success(res.message);
+            
+            if(res){
+                dispatchEvent(setUser(res.data.user));
+                console.log(user);
+                toast.success(res.data.message);
             }
         }catch(error){
             toast.error(error.response.message);
         }
         setOpen(false);
-        console.log(input);
     }
 
   return (
