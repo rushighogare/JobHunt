@@ -15,7 +15,7 @@ function Home() {
   
   const {user}=useSelector(store=>store.auth);
   useEffect(()=>{
-    if(user.role=='recruiter'){
+    if(user?.role==='recruiter'){
       navigate("/admin/companies");
     }
   },[]);
