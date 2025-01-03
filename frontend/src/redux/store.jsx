@@ -21,7 +21,8 @@ const persistConfig = {
   }
   const rootReducer=combineReducers({
     auth:authSlice,
-    job:jobSlice
+    job:jobSlice,
+    // company:companySlice             //error in this line
   })
 
   const persistedReducer = persistReducer(persistConfig, rootReducer)
